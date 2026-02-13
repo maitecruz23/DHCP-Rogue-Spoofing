@@ -56,34 +56,13 @@ Un servidor DHCP Rogue es un servidor DHCP no autorizado en una red que proporci
 ### Diagrama de Red
 
 ```
-                         ┌─────────────┐
-                         │   Internet  │
-                         │     Net     │
-                         └──────┬──────┘
-                                │ Gi0/0
-                         ┌──────┴──────┐
-                         │   Router    │
-                         │    vIOS     │
-                         └──────┬──────┘
-                                │ Gi0/1
-                    ┌───────────┴───────────┐
-                    │                       │
-             ┌──────┴──────┐         ┌─────┴──────┐
-             │   Router    │         │   Router   │
-             │    vIOS     │         │    vIOS    │
-             └──────┬──────┘         └─────┬──────┘
-                    │ Gi0/0                │ Gi0/0
-                    │                      │
-            ┌───────┴──────────────────────┴───────┐
-            │           Switch (Gi0/1)              │
-            │              vIOS                     │
-            └───────┬──────────────┬────────────────┘
-                    │ Gi0/2        │ Gi0/3
-            ┌───────┴──────┐  ┌────┴─────────┐
-            │  Kali Linux  │  │   Windows    │
-            │  (Atacante)  │  │   (Víctima)  │
-            │ 20.24.116.2  │  │20.24.116.100 │
-            └──────────────┘  └──────────────┘
+                    <img width="1911" height="1214" alt="image" src="https://github.com/user-attachments/assets/5dc199a8-dca7-473a-9ec5-2039b26608ff" />
+
+
+
+
+
+
 ```
 
 ### Especificaciones de la Red
