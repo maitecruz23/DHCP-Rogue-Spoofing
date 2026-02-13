@@ -56,16 +56,43 @@ Un servidor DHCP Rogue es un servidor DHCP no autorizado en una red que proporci
 ### Diagrama de Red
 
 ```
-
-
-
-
-<img width="1829" height="1219" alt="image" src="https://github.com/user-attachments/assets/03c88d0e-940b-4bc9-a41f-238d1b485a7f" />
-
-
+┌─────────────┐
+                         │   Internet  │
+                         │     Net     │
+                         └──────┬──────┘
+                                │ Gi0/0
+                         ┌──────┴──────┐
+                         │   Router    │
+                         │    vIOS     │
+                         └──────┬──────┘
+                                │ Gi0/1
+                    ┌───────────┴───────────┐
+                    │                       │
+             ┌──────┴──────┐         ┌─────┴──────┐
+             │   Router    │         │   Router   │
+             │    vIOS     │         │    vIOS    │
+             └──────┬──────┘         └─────┬──────┘
+                    │ Gi0/0                │ Gi0/0
+                    │                      │
+            ┌───────┴──────────────────────┴───────┐
+            │           Switch (Gi0/1)              │
+            │              vIOS                     │
+            └───────┬──────────────┬────────────────┘
+                    │ Gi0/2        │ Gi0/3
+            ┌───────┴──────┐  ┌────┴─────────┐
+            │  Kali Linux  │  │   Windows    │
+            │  (Atacante)  │  │   (Víctima)  │
+            │ 20.24.116.2  │  │20.24.116.100 │
+            └──────────────┘  └──────────────┘
 
 
 ```
+
+<img width="2085" height="1235" alt="image" src="https://github.com/user-attachments/assets/368246a7-72ff-439d-b1cc-bc8c446417d1" />
+
+
+
+
 
 ### Especificaciones de la Red
 
@@ -390,7 +417,10 @@ Ethernet adapter Local Area Connection:
                                        1.1.1.1      ← DNS de Cloudflare
 ```
 
-![Estado Antes del Ataque](screenshots/01_before_attack.png)
+<img width="875" height="438" alt="image" src="https://github.com/user-attachments/assets/8b3d2ca0-df8d-4d8b-b78c-f8d3014231c2" />
+
+<img width="919" height="419" alt="image" src="https://github.com/user-attachments/assets/ed4e557b-5739-4bae-ad5e-bda51191678a" />
+
 
 ---
 
@@ -432,7 +462,10 @@ root@kali:~# sudo python3 dhcp_rogue.py
 [✓✓] DNS: 20.24.116.2 ← SOLO TU KALI
 ```
 
-![DHCP Rogue Ejecutándose](screenshots/02_dhcp_rogue_running.png)
+
+
+<img width="896" height="785" alt="image" src="https://github.com/user-attachments/assets/ad5443d9-39c3-4fb1-b0ed-9bf1f115b169" />
+
 
 **Terminal 2 - Kali Linux (DNSMasq):**
 
@@ -459,7 +492,9 @@ dnsmasq: query[A] www.msftncsi.com from 20.24.116.100
 dnsmasq: config www.msftncsi.com is 20.24.116.2
 ```
 
-![DNSMasq Logs](screenshots/03_dnsmasq_logs.png)
+<img width="1268" height="952" alt="image" src="https://github.com/user-attachments/assets/b57fcb39-a431-4064-ba87-e79f3d5bc8b4" />
+
+
 
 **Windows (Renovar DHCP):**
 
@@ -482,7 +517,8 @@ Ethernet adapter Local Area Connection:
    Default Gateway . . . . . . . . . : 20.24.116.2    ← Kali como gateway
 ```
 
-![Renovación DHCP Windows](screenshots/04_windows_renew.png)
+<img width="886" height="455" alt="image" src="https://github.com/user-attachments/assets/770b86a9-f8c6-41f4-b125-cbf27af3bf1f" />
+
 
 ---
 
@@ -514,7 +550,8 @@ Ethernet adapter Local Area Connection:
    NetBIOS over Tcpip. . . . . . . . : Enabled
 ```
 
-![Configuración Comprometida](screenshots/05_compromised_config.png)
+<img width="892" height="320" alt="image" src="https://github.com/user-attachments/assets/27e2051f-8bb4-4f72-a5ba-75069dcbda2d" />
+
 
 **Prueba de DNS Spoofing:**
 
@@ -534,7 +571,8 @@ Name:    google.com.practica20241165.local
 Address:  20.24.116.2  ← Google redirigido a Kali!
 ```
 
-![DNS Spoofing Exitoso](screenshots/06_dns_spoofing_success.png)
+<img width="875" height="408" alt="image" src="https://github.com/user-attachments/assets/d3ce26f8-fd88-4276-8abe-52af32289466" />
+
 
 ---
 
@@ -1149,9 +1187,6 @@ El autor NO se hace responsable de:
 
 - 🎓 Estudiante de Ciberseguridad
 - 🔐 Enfoque en Pentesting y Red Team
-- 📧 Email: tu-email@ejemplo.com
-- 💼 LinkedIn: [tu-perfil](https://linkedin.com/in/tu-perfil)
-- 🐙 GitHub: [@tu-usuario](https://github.com/tu-usuario)
 
 ---
 
@@ -1164,16 +1199,6 @@ El autor NO se hace responsable de:
 
 ---
 
-## 📝 Changelog
-
-### v1.0.0 (2026-02-13)
-- ✨ Release inicial del proyecto
-- ✅ Implementación completa de DHCP Rogue Server
-- ✅ Integración con DNSMasq para DNS Spoofing
-- ✅ Documentación exhaustiva con topología de red
-- ✅ Capturas de pantalla del ataque en acción
-- ✅ Guía de contramedidas de seguridad
-- ✅ Scripts de detección automatizada
 
 ---
 
@@ -1184,7 +1209,7 @@ Este proyecto está bajo la **Licencia MIT**.
 ```
 MIT License
 
-Copyright (c) 2026 [Tu Nombre]
+Copyright (c) 2026  Maitte Rodriguez
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1208,6 +1233,7 @@ SOFTWARE.
 ---
 
 <div align="center">
+
 
 ## 🔐 Recuerda: Con gran poder viene gran responsabilidad
 
