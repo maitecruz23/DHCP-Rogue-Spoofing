@@ -56,9 +56,11 @@ Un servidor DHCP Rogue es un servidor DHCP no autorizado en una red que proporci
 ### Diagrama de Red
 
 ```
-                    <img width="1911" height="1214" alt="image" src="https://github.com/user-attachments/assets/5dc199a8-dca7-473a-9ec5-2039b26608ff" />
 
 
+
+
+<img width="1829" height="1219" alt="image" src="https://github.com/user-attachments/assets/03c88d0e-940b-4bc9-a41f-238d1b485a7f" />
 
 
 
