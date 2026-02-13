@@ -1077,42 +1077,7 @@ crontab -e
 
 ---
 
-## 📚 Referencias
 
-### Documentación Técnica
-
-1. **RFC 2131** - Dynamic Host Configuration Protocol  
-   https://tools.ietf.org/html/rfc2131
-
-2. **RFC 1035** - Domain Names - Implementation and Specification  
-   https://tools.ietf.org/html/rfc1035
-
-3. **Scapy Documentation**  
-   https://scapy.readthedocs.io/
-
-4. **DNSMasq Manual**  
-   http://www.thekelleys.org.uk/dnsmasq/doc.html
-
-### Herramientas de Seguridad
-
-- **Wireshark** - Análisis de paquetes de red  
-  https://www.wireshark.org/
-
-- **Ettercap** - Suite completa de ataques MITM  
-  https://www.ettercap-project.org/
-
-- **Bettercap** - Framework moderno de network attacks  
-  https://www.bettercap.org/
-
-- **Responder** - LLMNR/NBT-NS/MDNS Poisoner  
-  https://github.com/lgandx/Responder
-
-### Cursos y Certificaciones
-
-- **OSCP** - Offensive Security Certified Professional
-- **eJPT** - eLearnSecurity Junior Penetration Tester
-- **CEH** - Certified Ethical Hacker
-- **GPEN** - GIAC Penetration Tester
 
 ### Libros Recomendados
 
